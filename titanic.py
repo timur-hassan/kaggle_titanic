@@ -18,7 +18,8 @@ sys.excepthook = ColorTB()
 
 SEED = 42
 
-# 2. Load data
+###############################################################################
+############### 1. Load data
 # TODO fix cabin process, it's not part of the pipeline
 
 # Read data then drop unused columns
@@ -34,11 +35,14 @@ df["Cabin"] = (
     df["Cabin"].replace("T", "n").replace("G", "n")
 )
 
+###############################################################################
+############### 2. SEPARATE X y #############
 # Separate data into X,y (Predictors, Target)
 X = df.drop("Survived", axis=1)
 y = df["Survived"]
 
-# 3. Column transformer
+###############################################################################
+############## 3. COLUMN TRANSFORMER
 ct = make_column_transformer(
     (OneHotEncoder(), ["Pclass", "Sex", "Embarked", "Cabin"]),
     (KNNImputer(n_neighbors=2, add_indicator=True), ["Fare", "Age"]),
@@ -47,24 +51,28 @@ ct = make_column_transformer(
 
 ct.fit(X)
 
-# 4. Define LogReg model
+###############################################################################
+############### 4. Define LogReg model
 
 lr = LogisticRegression(max_iter=100000, solver="lbfgs")
 
-# 5. Define Pipeline
+###############################################################################
+############### 5. Define Pipeline
 
 pipe = make_pipeline(ct, lr)
 
 pipe
 
-# 6. Define Model Parameters
+###############################################################################
+############### 6. Define Model Parameters
 
 params = {
     "logisticregression__C": [0.01, 0.1, 1.0],
     "logisticregression__penalty": ["l1", "l2"],
 }
 
-# 7. Grid Search over pipeline
+###############################################################################
+############### 7. Grid Search over pipeline
 
 # Gridsearch runs over 'params'
 grid = GridSearchCV(
